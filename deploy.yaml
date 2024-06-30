@@ -1,0 +1,42 @@
+- name: Deploy application to Kubernetes
+  hosts: localhost
+  tasks:
+    - name: Create Kubernetes deployment
+      k8s:
+        state: present
+        definition: 
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: my-app
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: my-app
+            template:
+              metadata:
+                labels:
+                  app: my-app
+              spec:
+                containers:
+                - name: my-app
+                  image: my-app:latest
+                  ports:
+                  - containerPort: 3000
+
+    - name: Expose Deployment as a Service
+      k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: my-app-service
+          spec:
+            selector:
+              app: my-app
+            ports:
+              - protocol: TCP
+                port: 80
+                targetPort: 3000
