@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    environment {
+        KUBECONFIG = '/var/jenkins_home/.kube/config'  // Path to the Kubernetes config file
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -13,17 +16,11 @@ pipeline {
                 }
             }
         }
-        stage('Test') {
+        stage('Deploy to Kubernetes') {
             steps {
-                script {
-                    // Example test step
-                    sh 'echo "Running tests..."'
+                container('kubectl') {
+                    sh "kubectl apply -f deploy.yml"  // Replace with your deployment command
                 }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                ansiblePlaybook credentialsId: 'your-ansible-credentials-id', playbook: 'deploy.yml'
             }
         }
     }
